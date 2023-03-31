@@ -1,0 +1,60 @@
+@import "variables";
+@import "custom-checkbox";
+@import "dialogs";
+
+html, body {
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+.button {
+  padding: 7px 15px;
+  margin: 0 5px;
+  background-color: $color-green;
+  color: white;
+  border: none;
+  text-transform: uppercase;
+
+  &--error {
+    background-color: $color-red;
+  }
+
+  &--info {
+    background-color: $color-purple;
+  }
+}
+
+.content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  h4, p {
+    margin: 0;
+    white-space: nowrap;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .text {
+    margin: 5px 0;
+  }
+}
+
+
+
+@media(min-width: $medium-width) {
+  .content {
+    flex-direction: row;
+
+    h4, p {
+      text-align: left;
+      font-size: 16px;
+    }
+  }
+}
