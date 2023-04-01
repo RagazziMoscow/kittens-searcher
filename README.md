@@ -1,8 +1,14 @@
 # kittens-searcher
 
+## Project run
+```
+docker-compose up
+```
+You will see the result typing in your browser: `localhost:49160`
+
 ## Project setup
 ```
-npm install
+npm install --legacy-peer-deps
 ```
 
 ### Compiles and hot-reloads for development
