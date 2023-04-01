@@ -1,0 +1,8 @@
+version: '2'
+services:
+  app:
+    build: .
+    command: http-server dist
+    ports:
+      - "49160:8080"
+      
