@@ -99,10 +99,8 @@ export default class Cards extends Vue {
       .filter(cat => this.name ? cat.name.toLowerCase().includes(this.name.toLowerCase()) : true)
       .filter(cat => this.isYoungerThanSixMonths ? cat.age < 0.5 : true)
       .filter(cat => this.isYoungerThanTwelveMonths ? cat.age < 1 : true)
-      .filter(cat => this.isBlackColor ? cat.color === Color.BLACK : true)
-      .slice(0, this.limit);
-
-    return filteredCats.sort((catOne: Cat, catTwo: Cat): number => {
+      .filter(cat => this.isBlackColor ? cat.color === Color.BLACK : true);
+    const sortedCats = filteredCats.sort((catOne: Cat, catTwo: Cat): number => {
       if (typeof catOne[this.sortingProperty] === "number") {
         return this.isSortingAsc
           ? (catOne[this.sortingProperty] as number) - (catTwo[this.sortingProperty] as number)
@@ -113,6 +111,8 @@ export default class Cards extends Vue {
           : (catTwo[this.sortingProperty] as string).localeCompare(catOne[this.sortingProperty] as string);
       }
     });
+
+    return sortedCats.slice(0, this.limit);
   }
 
   private get isShowMoreButtonVisible(): boolean {

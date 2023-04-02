@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="carousel" @mouseout="runMoving" @mouseover="stopMoving">
+    <div class="carousel" @mouseout="onMouseOut" @mouseover="onMouseOver">
       <div class="inner" ref="inner" :style="innerStyles">
         <div class="slide" v-for="cat in cats" :key="cat.id">
           <img :src="getCatImage(cat)" :alt="cat.name" @click="showDetailInformation(cat)" />
@@ -12,7 +12,7 @@
         </div>
       </div>
 
-      <div class="buttons">
+      <div class="buttons" v-if="isMovingAllowed">
         <button @click="prev">&lt;</button>
         <button @click="next">&gt;</button>
       </div>
@@ -35,26 +35,27 @@ export default class Carousel extends Vue {
 
   @Ref("inner") inner!: HTMLElement;
 
-  private innerStyles = {};
+  private innerStyles: Record<string, string> = {};
   private step = "";
   private transitioning = false;
   private movingInterval: number | null = null;
   private cats: Cat[] = [];
 
+  private get isMovingAllowed(): boolean {
+    return this.cats.length > 2;
+  }
+
   @Watch("availableCats")
   private onAvailableCatsChanged(): void {
     this.stopMoving();
-    this.setCats();
-    this.runMoving();
+    this.initCarousel();
   }
 
   @Inject("openDialog") readonly openDialog!: (dialogType: DialogType, options: DialogOptions) => void;
 
   private mounted(): void {
     window.addEventListener("resize", this.onWindowResize);
-    this.setCats();
-    this.setStep();
-    this.runMoving();
+    this.initCarousel();
   }
 
   private destroyed(): void {
@@ -62,10 +63,16 @@ export default class Carousel extends Vue {
     this.stopMoving();
   }
 
-  private onWindowResize(): void {
-    this.stopMoving();
+  private initCarousel(isCats = true): void {
+    isCats && this.setCats();
     this.setStep();
-    this.runMoving();
+    this.$nextTick(() => {
+      if (this.isMovingAllowed) {
+        this.runMoving();
+      } else {
+        this.resetTransform();
+      }
+    });
   }
 
   private setCats(): void {
@@ -134,6 +141,12 @@ export default class Carousel extends Vue {
     };
   }
 
+  private resetTransform(): void {
+    this.innerStyles = {
+      transform: "none"
+    };
+  }
+
   private afterTransition(callback: () => void): void {
     const listener = () => {
       callback();
@@ -147,6 +160,19 @@ export default class Carousel extends Vue {
       transition: "none",
       transform: `translateX(-${this.step})`
     };
+  }
+
+  private onWindowResize(): void {
+    this.stopMoving();
+    this.initCarousel(false);
+  }
+
+  private onMouseOver(): void {
+    this.stopMoving();
+  }
+
+  private onMouseOut(): void {
+    (this.cats.length > 2) && this.runMoving();
   }
 
   private getCatImage(cat: Cat) {
