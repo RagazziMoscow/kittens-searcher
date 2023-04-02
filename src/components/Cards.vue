@@ -16,35 +16,29 @@ import {DialogType} from "@/models";
 
         <fieldset>
           <legend>Property for sorting:</legend>
-          <input type="radio" id="name" value="name" v-model="sortingProperty" />
-          <label for="name">Name</label>
 
-          <input type="radio" id="color" value="color" v-model="sortingProperty" />
-          <label for="color">Color</label>
-
-          <input type="radio" id="age" value="age" v-model="sortingProperty" />
-          <label for="age">Age</label>
+          <div>
+            <input type="radio" id="name" value="name" v-model="sortingProperty" />
+            <label for="name">Name</label>
+          </div>
+          <div>
+            <input type="radio" id="color" value="color" v-model="sortingProperty" />
+            <label for="color">Color</label>
+          </div>
+          <div>
+            <input type="radio" id="age" value="age" v-model="sortingProperty" />
+            <label for="age">Age</label>
+          </div>
         </fieldset>
 
         <fieldset>
           <legend>Custom filters:</legend>
-          <label class="container">
-            Younger than 6 months
-            <input type="checkbox" id="six-months" v-model="isYoungerThanSixMonths">
-            <span class="checkmark"></span>
-          </label>
 
-          <label class="container">
-            Younger than 6 months
-            <input type="checkbox" id="twelve-months" v-model="isYoungerThanTwelveMonths">
-            <span class="checkmark"></span>
-          </label>
+          <custom-checkbox v-model="isYoungerThanSixMonths" title="Younger than 6 months" />
 
-          <label class="container">
-            Black color
-            <input type="checkbox" id="black-color" v-model="isBlackColor">
-            <span class="checkmark"></span>
-          </label>
+          <custom-checkbox v-model="isYoungerThanTwelveMonths" title="Younger than 12 months" />
+
+          <custom-checkbox v-model="isBlackColor" title="Black color" />
         </fieldset>
       </form>
     </div>
@@ -78,9 +72,13 @@ import Cat from "@/models/Cat";
 import Color from "@/models/Color";
 import { ConfirmDialogOptions, DialogType } from "@/models";
 
+import CustomCheckbox from "./CustomCheckbox.vue";
+
 const PAGE_SIZE = 20;
 
-@Component
+@Component({
+  components: { CustomCheckbox }
+})
 export default class Cards extends Vue {
   @Getter readonly availableCats!: Cat[];
 
@@ -98,11 +96,11 @@ export default class Cards extends Vue {
 
   private get cats(): Cat[] {
     const filteredCats = this.availableCats
-      .slice(0, this.limit)
       .filter(cat => this.name ? cat.name.toLowerCase().includes(this.name.toLowerCase()) : true)
       .filter(cat => this.isYoungerThanSixMonths ? cat.age < 0.5 : true)
       .filter(cat => this.isYoungerThanTwelveMonths ? cat.age < 1 : true)
-      .filter(cat => this.isBlackColor ? cat.color === Color.BLACK : true);
+      .filter(cat => this.isBlackColor ? cat.color === Color.BLACK : true)
+      .slice(0, this.limit);
 
     return filteredCats.sort((catOne: Cat, catTwo: Cat): number => {
       if (typeof catOne[this.sortingProperty] === "number") {
@@ -151,10 +149,15 @@ export default class Cards extends Vue {
     padding: 0 30px;
     box-sizing: border-box;
 
+    fieldset {
+      margin: 0 5px;
+      padding: 10px;
+    }
+
     input[type="text"] {
       height: 35px;
       width: 100%;
-      padding: 0;
+      box-sizing: border-box;
       border-radius: 5px;
       border-color: $color-green;
     }
@@ -205,8 +208,7 @@ export default class Cards extends Vue {
     }
 
     fieldset {
-      margin: 0 auto;
-      width: 90%;
+      width: 100%;
     }
   }
 

@@ -1,4 +1,3 @@
-import {DialogType} from "@/models";
 <template>
   <div>
     <div class="carousel" @mouseout="runMoving" @mouseover="stopMoving">
@@ -44,14 +43,27 @@ export default class Carousel extends Vue {
 
   @Watch("availableCats")
   private onAvailableCatsChanged(): void {
+    this.stopMoving();
     this.setCats();
-    this.setStep();
+    this.runMoving();
   }
 
   @Inject("openDialog") readonly openDialog!: (dialogType: DialogType, options: DialogOptions) => void;
 
   private mounted(): void {
+    window.addEventListener("resize", this.onWindowResize);
     this.setCats();
+    this.setStep();
+    this.runMoving();
+  }
+
+  private destroyed(): void {
+    window.removeEventListener("resize", this.onWindowResize);
+    this.stopMoving();
+  }
+
+  private onWindowResize(): void {
+    this.stopMoving();
     this.setStep();
     this.runMoving();
   }
@@ -61,7 +73,8 @@ export default class Carousel extends Vue {
   }
 
   private setStep(): void {
-    const innerWidth = this.inner.scrollWidth;
+    const inner = this.inner;
+    const innerWidth = Math.min(inner.clientWidth, inner.offsetWidth, inner.scrollWidth);
     const totalSlides = this.cats.length;
 
     this.step = `${innerWidth / totalSlides}px`;
@@ -160,13 +173,17 @@ export default class Carousel extends Vue {
 <style lang="scss">
 @import "../styles/variables";
 
+$size-ratio: 2.03;
+$extra-small-size: 100px;
+$small-size: 200px;
+$medium-size: 500px;
+
 .carousel {
   $slides-moving-time: 0.4s;
   $slides-zooming-time: 0.2s;
-  $buttons-size: 40px;
 
   overflow: hidden;
-  margin: 0 auto;
+  margin: 20px auto;
   position: relative;
 
   .inner {
@@ -178,7 +195,7 @@ export default class Carousel extends Vue {
     display: inline-flex;
     justify-content: center;
     position: relative;
-    margin-right: 10px;
+    margin-right: 4px;
     border-radius: 4px;
     background-color: green;
     color: white;
@@ -189,6 +206,7 @@ export default class Carousel extends Vue {
       transition: transform $slides-zooming-time;
 
       &:hover {
+        cursor: pointer;
         transform: scale(1.5);
       }
     }
@@ -204,8 +222,8 @@ export default class Carousel extends Vue {
 
     button {
       margin: 10px 5px;
-      width: $buttons-size;
-      height: $buttons-size;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       border-width: 0;
       background-color: $color-brown;
@@ -216,24 +234,44 @@ export default class Carousel extends Vue {
   }
 }
 
-@media (max-width: $medium-width) {
+@media (max-width: $extra-small-width) {
   .carousel {
-    width: 300px;
+    width: $extra-small-size * $size-ratio;
 
     .slide {
-      width: 150px;
-      height: 150px;
+      width: $extra-small-size;
+      height: $extra-small-size;
+    }
+
+    .buttons {
+      button {
+        width: 25px;
+        height: 25px;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+@media (min-width: $extra-small-width) and (max-width: $medium-width) {
+  .carousel {
+    width: $small-size * $size-ratio;
+
+    .slide {
+      width: $small-size;
+      height: $small-size;
     }
   }
 }
 
 @media (min-width: $medium-width) {
   .carousel {
-    width: 610px;
+    width: $medium-size * $size-ratio;
 
     .slide {
-      width: 300px;
-      height: 300px;
+      width: $medium-size;
+      height: $medium-size;
+      margin-right: 10px;
     }
   }
 }
