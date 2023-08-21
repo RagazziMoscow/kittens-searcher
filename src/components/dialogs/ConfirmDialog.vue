@@ -31,6 +31,14 @@ export default class ConfirmDialog extends Vue {
   @Prop({ type: String, required: true }) readonly title!: string;
   @Prop({ type: String, required: true }) readonly text!: string;
   @Prop({ type: Function, required: true }) readonly action!: () => void;
+  @Prop({ type: Function }) readonly onOpen!: () => void;
+  @Prop({ type: Function }) readonly onClose!: () => void;
+
+  private mounted(): void {
+    if (this.onOpen) {
+      this.onOpen();
+    }
+  }
 
   private confirm(): void {
     this.action();
@@ -39,6 +47,9 @@ export default class ConfirmDialog extends Vue {
 
   private close(): void {
     this.isShown = false;
+    if (this.onClose) {
+      this.onClose();
+    }
   }
 }
 </script>

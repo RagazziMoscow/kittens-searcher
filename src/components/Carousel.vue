@@ -35,10 +35,11 @@ export default class Carousel extends Vue {
 
   @Ref("inner") inner!: HTMLElement;
 
+  private movingInterval: ReturnType<typeof setInterval> | null = null;
   private innerStyles: Record<string, string> = {};
   private step = "";
   private transitioning = false;
-  private movingInterval: number | null = null;
+  private isConfirmDialogOpened = false;
   private cats: Cat[] = [];
 
   private get isMovingAllowed(): boolean {
@@ -92,7 +93,9 @@ export default class Carousel extends Vue {
   }
 
   private stopMoving(): void {
-    clearInterval(this.movingInterval as number);
+    // eslint-disable-next-line no-undef
+    clearInterval(this.movingInterval as NodeJS.Timer);
+    this.movingInterval = null;
   }
 
   private next(): void {
@@ -172,7 +175,7 @@ export default class Carousel extends Vue {
   }
 
   private onMouseOut(): void {
-    (this.cats.length > 2) && this.runMoving();
+    (this.cats.length > 2 && !this.isConfirmDialogOpened) && this.runMoving();
   }
 
   private getCatImage(cat: Cat) {
@@ -184,10 +187,17 @@ export default class Carousel extends Vue {
     const dialogOptions: ConfirmDialogOptions = {
       title: "Adopt cat",
       text: "Are you sure you want to adopt this cat ?",
-      action: () => this.adoptCat(cat)
+      action: () => this.adoptCat(cat),
+      onOpen: () => this.onConfirmDialogOpen(),
+      onClose: () => this.runMoving()
     };
 
     this.openDialog(DialogType.CONFIRM_DIALOG, dialogOptions);
+  }
+
+  private onConfirmDialogOpen(): void {
+    this.isConfirmDialogOpened = true;
+    this.stopMoving();
   }
 
   private showDetailInformation(cat: Cat): void {

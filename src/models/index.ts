@@ -9,6 +9,8 @@ export interface ConfirmDialogOptions {
   title: string;
   text: string;
   action: () => void;
+  onOpen?: () => void;
+  onClose?: () => void;
 }
 
 export type DialogOptions = ConfirmDialogOptions | { cat: Cat };
